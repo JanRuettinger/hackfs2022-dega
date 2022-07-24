@@ -31,9 +31,9 @@ const Index: NextPage = () => {
                 <div>NAME </div>
                 <div>
                     <ConnectButton
-                    // chainStatus="none"
-                    // showBalance={false}
-                    // accountStatus="address"
+                        // chainStatus="none"
+                        // showBalance={false}
+                        accountStatus="address"
                     />
                 </div>
             </header>

@@ -3,6 +3,7 @@ import GalleryItem from './GalleryItem';
 import { connect, Connection } from '@tableland/sdk';
 import { useEffect, useState } from 'react';
 import NFTItem from './NFTItem';
+import useTableland from '../hooks/useTableland';
 
 const nftItems = [
     {
@@ -30,46 +31,6 @@ const galleryItems = [
 
 export default function Home() {
     // Establish a connection
-    const [tablelandConnection, setTablelandConnection] =
-        useState<Connection>();
-
-    async function createNewGallery() {
-        console.log('create new gallery table');
-        if (tablelandConnection) {
-            console.log('in if');
-            // Create a table
-            // const { name } = await tablelandConnection.create(
-            //     `name text, id int, primary key (id)`,
-            //     `quickstart`
-            // );
-
-            // console.log(name);
-            // console.log('write from table');
-            // // Wait for the table to be created, then query
-            // const writeRes = await tablelandConnection.write(
-            //     `INSERT INTO ${name} VALUES (0, 'Bobby Tables');`
-            // );
-            let name = 'quickstart_80001_520';
-            console.log('read from table');
-            const readRes = await tablelandConnection.read(
-                `SELECT * FROM ${name}`
-            );
-
-            console.log(readRes);
-        }
-    }
-
-    useEffect(() => {
-        const initTableland = async () => {
-            const tmp = await connect({
-                chain: 'polygon-mumbai',
-                chainId: 80001,
-            });
-            console.log('connection: ', tmp);
-            setTablelandConnection(tmp);
-        };
-        initTableland();
-    }, []);
 
     return (
         <div>

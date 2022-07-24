@@ -1,26 +1,19 @@
 import { Web3Storage } from 'web3.storage';
-import { chainId } from 'wagmi';
-import { connect, Connection } from '@tableland/sdk';
-import { SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Head from 'next/head';
 import ImageUploading from 'react-images-uploading';
 import Image from 'next/image';
+import useTableland from '../../hooks/useTableland';
+import { v4 as uuidv4 } from 'uuid';
 
-// // Construct with token and endpoint
-
-const picsCIPs = [
-    'bafybeicgdakkl7q52sm4mydwsx4itbmphtouxlubsk7uueiyu72khcjjgm',
-    'bafybeibw3igythqgj4adpkdshy57ony4jw2xrj4v2wse4zjnwvxa7hgaaq',
-];
+const tableName = 'GalleryTracker_80001_570';
 
 export default function Gallery() {
-    // Establish a connection
-    const [tablelandConnection, setTablelandConnection] =
-        useState<Connection>();
     const [images, setImages] = useState([]);
     const [pics, setPics] = useState<string[]>([]);
+    const tableland = useTableland();
 
     const router = useRouter();
     const { id } = router.query;
@@ -45,31 +38,56 @@ export default function Gallery() {
         const info = await client.status(rootCid); // Promise<Status | undefined>
         console.log('root CID:', rootCid);
         console.log('info:', info);
+        if (tableland) {
+            const writeRes = await tableland.write(
+                `INSERT INTO ${tableName} VALUES ('${uuidv4()}', '${rootCid}');`
+            );
+            console.log('writeRes:', writeRes);
+        }
     };
 
     useEffect(() => {
         // Fetch and verify files from web3.storage
 
         const getPics = async () => {
-            let imgUrls: string[] = [];
-            for (var val of picsCIPs) {
-                const res = await client.get(val); // Promise<Web3Response | null>
-                if (res) {
-                    const files = await res.files(); // Promise<Web3File[]>
-                    console.log('files', files);
-                    imgUrls = imgUrls.concat(
-                        files.flatMap(
-                            (file) => `https://${file.cid}.ipfs.dweb.link`
-                        )
-                    );
+            const tables = await tableland?.list();
+            console.log('Tables:', tables);
+
+            console.log('read from table');
+            if (tableland) {
+                const { rows } = await tableland.read(
+                    `SELECT * FROM ${tableName}`
+                );
+                console.log('Rows: ', rows);
+
+                let tmp = [];
+                for (const file of rows) {
+                    tmp.push(`https://${file[1]}.ipfs.dweb.link`);
                 }
+                console.log('fetched cips:', tmp);
+                setPics(tmp);
             }
-            setPics(imgUrls);
+
+            let imgUrls: string[] = [];
+            // for (var val of picsCIPs) {
+            //     const res = await client.get(val); // Promise<Web3Response | null>
+            //     if (res) {
+            //         const files = await res.files(); // Promise<Web3File[]>
+            //         console.log('files', files);
+            //         imgUrls = imgUrls.concat(
+            //             files.flatMap(
+            //                 (file) => `https://${file.cid}.ipfs.dweb.link`
+            //             )
+            //         );
+            //     }
+            // }
+            // setPics(imgUrls);
         };
 
         getPics();
-    });
+    }, [tableland]);
 
+    console.log('pics:', pics);
     return (
         <div className="flex flex-col h-screen">
             <Head>
@@ -84,9 +102,9 @@ export default function Gallery() {
                 <div>NAME </div>
                 <div>
                     <ConnectButton
-                    // chainStatus="none"
-                    // showBalance={false}
-                    // accountStatus="address"
+                        // chainStatus="none"
+                        // showBalance={false}
+                        accountStatus="address"
                     />
                 </div>
             </header>
