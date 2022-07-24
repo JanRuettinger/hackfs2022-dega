@@ -14,12 +14,9 @@ type NFTSummaryType = {
 
 const galleryItems = [
     {
-        name: 'APES',
-        address: '1',
-    },
-    {
-        name: 'CryptoPunks',
-        address: '2',
+        contractAddress: '0x2953399124f0cbb46d2cbacd8a89cf0599974963',
+        imgURL: 'https://lh3.googleusercontent.com/ZOy0IHm9Ei4IL0Yl29Z_UkGTuThz1_yjjMKT3iDdmFSUIMOT_dMMpn7JzNH5fz19YQ9eGDereGzThVNVk2k3CEfSGKD0vRqd0I9TFh8',
+        name: 'Bufficon #2',
     },
 ];
 
@@ -29,7 +26,11 @@ export default function Home() {
     const [nfts, setNfts] = useState<NFTSummaryType[]>([]);
     useEffect(() => {
         const getUserNFTs = async () => {
-            const tmp = await getNFTs(data?.address!, 'polygon');
+            let tmp = await getNFTs(data?.address!, 'polygon');
+            console.log(tmp);
+            tmp = tmp.filter((item) => item.name != galleryItems[0].name);
+
+            // check with Covalent if there exists a table for that contract already
             console.log(tmp);
             setNfts(tmp);
         };
@@ -39,7 +40,9 @@ export default function Home() {
     return (
         <div>
             <div className="flex flex-row justify-between mb-4">
-                <h2 className="font-bold text-2xl">Your NFTs</h2>
+                <h2 className="font-bold text-2xl">
+                    Your NFTs without a gallery:
+                </h2>
             </div>
             <div className="w-full border-b-2 border-block border-black"></div>
 
@@ -50,14 +53,16 @@ export default function Home() {
                             key={item.contractAddress}
                             name={item.name}
                             address={item.contractAddress}
-                            galleryExist={true}
+                            imageURL={item.imgURL}
                         />
                     );
                 })}
             </div>
 
             <div className="flex flex-row justify-between mb-4 mt-6">
-                <h2 className="font-bold text-2xl">Your Galleries</h2>
+                <h2 className="font-bold text-2xl">
+                    Galleries you have access to:
+                </h2>
             </div>
             <div className="w-full border-b-2 border-block border-black"></div>
 
@@ -65,9 +70,10 @@ export default function Home() {
                 {galleryItems.map((item) => {
                     return (
                         <GalleryItem
-                            key={item.address}
+                            key={item.contractAddress}
                             name={item.name}
-                            address={item.address}
+                            address={item.contractAddress}
+                            imageURL={item.imgURL}
                         />
                     );
                 })}

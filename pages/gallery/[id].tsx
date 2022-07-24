@@ -7,22 +7,33 @@ import ImageUploading from 'react-images-uploading';
 import Image from 'next/image';
 import useTableland from '../../hooks/useTableland';
 import { v4 as uuidv4 } from 'uuid';
+import { useAccount, useConnect } from 'wagmi';
 
 const tableName = 'GalleryTracker_80001_570';
 
-export default function Gallery() {
-    const [images, setImages] = useState([]);
-    const [pics, setPics] = useState<string[]>([]);
-    const tableland = useTableland();
+const galleryItem = {
+    contractAddress: '0x2953399124f0cbb46d2cbacd8a89cf0599974963',
+    imgURL: 'https://lh3.googleusercontent.com/ZOy0IHm9Ei4IL0Yl29Z_UkGTuThz1_yjjMKT3iDdmFSUIMOT_dMMpn7JzNH5fz19YQ9eGDereGzThVNVk2k3CEfSGKD0vRqd0I9TFh8',
+    name: 'Bufficon',
+};
 
+const cids = [
+    'https://bafkreigik6at5ak7rtopfawhhzgoayvdujaknvn4ljxizpdzes7jyq27uq.ipfs.dweb.link',
+];
+
+export default function Gallery() {
+    const [imagesUploadedURLs, setImagesUploadedURLs] = useState<string[]>([]);
+    const [imagesStaging, setImagesStaging] = useState([]);
+    const tableland = useTableland();
     const router = useRouter();
     const { id } = router.query;
+    const { isConnected } = useConnect();
 
     const onChange = (imageList: any, addUpdateIndex: any) => {
         // data for submit
         console.log(imageList, addUpdateIndex);
         console.log('image list: ', imageList);
-        setImages(imageList);
+        setImagesStaging(imageList);
     };
 
     const client = new Web3Storage({
@@ -32,28 +43,30 @@ export default function Gallery() {
 
     const uploadImage = async (imageIndex: number) => {
         //     // Pack files into a CAR and send to web3.storage
-        console.log(images[imageIndex]);
-        const rootCid = await client.put([images[imageIndex]['file']]); // Promise<CIDString>
+        console.log(imagesStaging[imageIndex]);
+        const rootCid = await client.put([imagesStaging[imageIndex]['file']], {
+            wrapWithDirectory: false,
+        }); // Promise<CIDString>
         //     // Get info on the Filecoin deals that the CID is stored in
-        const info = await client.status(rootCid); // Promise<Status | undefined>
         console.log('root CID:', rootCid);
+        const info = await client.status(rootCid); // Promise<Status | undefined>
         console.log('info:', info);
-        if (tableland) {
-            const writeRes = await tableland.write(
-                `INSERT INTO ${tableName} VALUES ('${uuidv4()}', '${rootCid}');`
-            );
-            console.log('writeRes:', writeRes);
-        }
+        // if (tableland) {
+        //     const writeRes = await tableland.write(
+        //         `INSERT INTO ${tableName} VALUES ('${uuidv4()}', '${rootCid}');`
+        //     );
+        //     console.log('writeRes:', writeRes);
+        // }
+        setImagesUploadedURLs([
+            ...imagesUploadedURLs,
+            `https://${rootCid}.ipfs.dweb.link`,
+        ]);
     };
 
     useEffect(() => {
-        // Fetch and verify files from web3.storage
+        // Use covalent to find table name
 
-        const getPics = async () => {
-            const tables = await tableland?.list();
-            console.log('Tables:', tables);
-
-            console.log('read from table');
+        const getimagesUploadedURLs = async () => {
             if (tableland) {
                 const { rows } = await tableland.read(
                     `SELECT * FROM ${tableName}`
@@ -65,29 +78,17 @@ export default function Gallery() {
                     tmp.push(`https://${file[1]}.ipfs.dweb.link`);
                 }
                 console.log('fetched cips:', tmp);
-                setPics(tmp);
+                setImagesUploadedURLs(tmp);
             }
-
-            let imgUrls: string[] = [];
-            // for (var val of picsCIPs) {
-            //     const res = await client.get(val); // Promise<Web3Response | null>
-            //     if (res) {
-            //         const files = await res.files(); // Promise<Web3File[]>
-            //         console.log('files', files);
-            //         imgUrls = imgUrls.concat(
-            //             files.flatMap(
-            //                 (file) => `https://${file.cid}.ipfs.dweb.link`
-            //             )
-            //         );
-            //     }
-            // }
-            // setPics(imgUrls);
         };
 
-        getPics();
+        // getimagesUploadedURLs();
+        setImagesUploadedURLs(cids);
+        if (!isConnected && router) {
+            router.push('/').then(() => router.reload());
+        }
     }, [tableland]);
 
-    console.log('pics:', pics);
     return (
         <div className="flex flex-col h-screen">
             <Head>
@@ -98,8 +99,10 @@ export default function Gallery() {
                 />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <header className="p-4 bg-red-500 flex flex-row justify-between">
-                <div>NAME </div>
+            <header className="p-4 bg-gray-500 flex flex-row justify-between">
+                <div className="text-2xl font-bold text-gray-800 font-bitter">
+                    DeGa
+                </div>
                 <div>
                     <ConnectButton
                         // chainStatus="none"
@@ -110,18 +113,18 @@ export default function Gallery() {
             </header>
             <main className="flex-grow bg-gray-200 p-4">
                 <div className="w-3/5 mx-auto mt-32">
-                    <h2 className="font-bold text-2xl text-center mb-2">
-                        Your NFTs {id}
+                    <h2 className="font-bold text-4xl text-center mb-2">
+                        Gallery: {galleryItem.name}
                     </h2>
                     <div className="w-full border-b-2 border-block border-black"></div>
                     <div className="mt-8 flex flex-row gap-8">
-                        {pics &&
-                            pics.map((image, index) => (
+                        {imagesUploadedURLs &&
+                            imagesUploadedURLs.map((url, index) => (
                                 <div key={index} className="w-1/3">
                                     <div className="w-full">
                                         <Image
                                             src={`/api/imageproxy?url=${encodeURIComponent(
-                                                image
+                                                url
                                             )}`}
                                             alt=""
                                             width="100%"
@@ -139,7 +142,7 @@ export default function Gallery() {
                     </h2>
                     <ImageUploading
                         multiple
-                        value={images}
+                        value={imagesStaging}
                         onChange={onChange}
                         maxNumber={10}
                         dataURLKey="data_url"
@@ -171,6 +174,7 @@ export default function Gallery() {
                                     <button
                                         className="text-xl rounded-md bg-red-500 p-4 font-bold mb-4"
                                         onClick={onImageRemoveAll}
+                                        disabled={imagesStaging.length < 1}
                                     >
                                         Remove all images
                                     </button>
@@ -236,12 +240,14 @@ export default function Gallery() {
                         )}
                     </ImageUploading>
 
-                    <h2 className="font-semibold text-2xl text-left mb-4 mt-10">
+                    {/* <h2 className="font-semibold text-2xl text-left mb-4 mt-10">
                         Chat
-                    </h2>
+                    </h2> */}
                 </div>
             </main>
-            <footer className="p-4 bg-blue-500">Footer</footer>
+            <footer className="p-4 bg-green-200 text-center mt-auto">
+                Built with ❤️ by Jan
+            </footer>
         </div>
     );
 }
