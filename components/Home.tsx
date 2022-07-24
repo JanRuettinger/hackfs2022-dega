@@ -1,22 +1,16 @@
-import { chainId } from 'wagmi';
+import { chainId, useAccount } from 'wagmi';
 import GalleryItem from './GalleryItem';
 import { connect, Connection } from '@tableland/sdk';
 import { useEffect, useState } from 'react';
 import NFTItem from './NFTItem';
 import useTableland from '../hooks/useTableland';
+import { getNFTs } from '../lib/api';
 
-const nftItems = [
-    {
-        name: 'APES',
-        address: '0x002020',
-        galleryExist: true,
-    },
-    {
-        name: 'APES',
-        address: '0x002020',
-        galleryExist: false,
-    },
-];
+type NFTSummaryType = {
+    contractAddress: string;
+    imgURL: string;
+    name: string;
+};
 
 const galleryItems = [
     {
@@ -30,7 +24,17 @@ const galleryItems = [
 ];
 
 export default function Home() {
+    const { data } = useAccount();
     // Establish a connection
+    const [nfts, setNfts] = useState<NFTSummaryType[]>([]);
+    useEffect(() => {
+        const getUserNFTs = async () => {
+            const tmp = await getNFTs(data?.address!, 'polygon');
+            console.log(tmp);
+            setNfts(tmp);
+        };
+        getUserNFTs();
+    }, []);
 
     return (
         <div>
@@ -40,13 +44,13 @@ export default function Home() {
             <div className="w-full border-b-2 border-block border-black"></div>
 
             <div className="mt-4">
-                {nftItems.map((item) => {
+                {nfts.map((item) => {
                     return (
                         <NFTItem
-                            key={item.address}
+                            key={item.contractAddress}
                             name={item.name}
-                            address={item.address}
-                            galleryExist={item.galleryExist}
+                            address={item.contractAddress}
+                            galleryExist={true}
                         />
                     );
                 })}
