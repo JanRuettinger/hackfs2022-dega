@@ -4,7 +4,8 @@ import { connect, Connection } from '@tableland/sdk';
 import { useEffect, useState } from 'react';
 import NFTItem from './NFTItem';
 import useTableland from '../hooks/useTableland';
-import { getNFTs } from '../lib/api';
+import { getNFTs } from '../lib/nftapi';
+import { getTableCreationTxs } from '../lib/tableapi';
 
 type NFTSummaryType = {
     contractAddress: string;
@@ -34,7 +35,18 @@ export default function Home() {
             console.log(tmp);
             setNfts(tmp);
         };
+
+        const getTableContractEvents = async () => {
+            let tmp = await getTableCreationTxs(
+                process.env.NEXT_PUBLIC_TABLELAND_CONTRACT_ADDRESS!,
+                process.env.NEXT_PUBLIC_CHAIN_ID!
+            );
+            console.log('Contract events:');
+            console.log(tmp);
+        };
+
         getUserNFTs();
+        getTableContractEvents();
     }, []);
 
     return (

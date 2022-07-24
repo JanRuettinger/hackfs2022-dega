@@ -15,37 +15,6 @@ import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 
 const additionalChains: Chain[] = [
     {
-        id: 1666700000,
-        name: 'Harmony testnet Shard 0',
-        rpcUrls: { default: 'https://api.s0.b.hmny.io' },
-        network: 'harmony',
-        iconUrl: 'assets/harmony-one-logo.svg',
-        iconBackground: '#fff',
-        nativeCurrency: { name: 'ONE', symbol: 'ONE', decimals: 18 as 18 }, // eslint-disable-line
-        blockExplorers: {
-            default: {
-                name: 'Harmony Block Explorer',
-                url: 'https://explorer.harmony.one',
-            },
-        },
-        testnet: true,
-    },
-    {
-        id: 1666600000,
-        name: 'Harmony mainnet Shard 0',
-        network: 'harmony testnet',
-        iconUrl: 'assets/harmony-one-logo.svg',
-        rpcUrls: { default: 'https://api.harmony.one' },
-        nativeCurrency: { name: 'ONE', symbol: 'ONE', decimals: 18 as 18 }, // eslint-disable-line
-        blockExplorers: {
-            default: {
-                name: 'Harmony Block Explorer',
-                url: 'https://explorer.harmony.one',
-            },
-        },
-        testnet: false,
-    },
-    {
         id: 31337,
         name: 'Local Network',
         network: 'local network',

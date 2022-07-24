@@ -109,7 +109,6 @@ async function getNFTInfoSinglePage(
             throw error;
         }
     } else {
-        console.log(process.env.NEXT_PUBLIC_NFT_PORT_API_KEY);
         try {
             const response = await axios.get(`${NFT_BASE_URL}${address}`, {
                 params: {

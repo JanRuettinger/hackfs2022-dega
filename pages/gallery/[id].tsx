@@ -8,6 +8,9 @@ import Image from 'next/image';
 import useTableland from '../../hooks/useTableland';
 import { v4 as uuidv4 } from 'uuid';
 import { useAccount, useConnect } from 'wagmi';
+import { Client } from '@xmtp/xmtp-js';
+import { useSigner } from 'wagmi';
+import useXmtp from '../../hooks/useXmtp';
 
 const tableName = 'GalleryTracker_80001_570';
 
@@ -27,7 +30,9 @@ export default function Gallery() {
     const tableland = useTableland();
     const router = useRouter();
     const { id } = router.query;
+    const { data: signer, isError, isLoading } = useSigner();
     const { isConnected } = useConnect();
+    const { client: XmptClient } = useXmtp();
 
     const onChange = (imageList: any, addUpdateIndex: any) => {
         // data for submit
