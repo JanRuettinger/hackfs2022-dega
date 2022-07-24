@@ -240,9 +240,35 @@ export default function Gallery() {
                         )}
                     </ImageUploading>
 
-                    {/* <h2 className="font-semibold text-2xl text-left mb-4 mt-10">
-                        Chat
-                    </h2> */}
+                    <h2 className="font-semibold text-2xl text-left mb-4 mt-10">
+                        Chat (powered by XMTP)
+                    </h2>
+                    <div>
+                        <div className="border-2 border-black rounded-md bg-orange-200">
+                            <div>
+                                <textarea
+                                    name=""
+                                    id=""
+                                    cols="30"
+                                    rows="10"
+                                    className="w-full p-2 bg-orange-200"
+                                >
+                                    Haha
+                                </textarea>
+                                <input
+                                    className="w-full my-2 bg-gray-200 p-4 placeholder-gray-500"
+                                    placeholder="Your message"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            {' '}
+                            <button className="text-xl rounded-md bg-blue-500 p-4 font-bold my-4">
+                                Send
+                            </button>{' '}
+                        </div>
+                    </div>
                 </div>
             </main>
             <footer className="p-4 bg-green-200 text-center mt-auto">

@@ -54,8 +54,15 @@ export default function Home() {
                         <li className="mt-4">
                             Photo sharing is not enough? Your community can
                             <span className="font-semibold">
+                                {' '}
                                 exchange messages powered by XMTP{' '}
                             </span>
+                        </li>
+                        <li className="mt-4">
+                            Find the tables you have access to in{' '}
+                            <span className="font-semibold">no time</span>{' '}
+                            thanks to the API from{' '}
+                            <span className="font-semibold">CovalentHQ</span>
                         </li>
                     </ul>
                 </div>
